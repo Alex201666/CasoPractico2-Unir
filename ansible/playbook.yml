@@ -1,9 +1,9 @@
 ---
 - name: Manage Podman and ACR
-  hosts: webservers
-  become: true
+  hosts: webservers  #Aquí he definido el host al que me conecto con la ip y el usuario de ansible
+  become: true #privilegios root
   tasks:
-    - name: Update apt repository and install dependencies
+    - name: Update apt repository and install dependencies # para evitar errores posibles que me he encontrado tras varios intentos de instalación he añadido este modulo donde añado diversos paquetes
       apt:
         name:
           - apt-transport-https
@@ -11,42 +11,42 @@
           - curl
           - gnupg
           - lsb-release
-        state: present
-        update_cache: yes
+        state: present # de esta forma aseguramos que los paquetes estén instalados
+        update_cache: yes #actualiza la caché de paquetes antes de instalar
 
-    - name: Add Podman GPG key
+    - name: Add Podman GPG key # como he tenido problemas varios de esta forma añadiria la clave GPG del repositorio previamente a la instalacion
       apt_key:
         url: 'https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_18.04/Release.key'
         state: present
 
-    - name: Add Podman repository
+    - name: Add Podman repository # añado el repositorio especifico para la version de ubuntu que uso
       apt_repository:
         repo: 'deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_18.04/ /'
         state: present
 
-    - name: Install Podman
+    - name: Install Podman # instalacion de podman
       apt:
         name: podman
         state: present
         update_cache: yes
 
-    - name: Login to Azure ACR with Podman
+    - name: Login to Azure ACR with Podman # logeamos con azure usando podman
       shell: |
         podman login alexitodevopsacrcp2.azurecr.io --username alexitodevopsacrcp2 --password 7twRrp5O/1bxuidBgiWWAUoFztc3pR/EyqSpKSGpz5+ACRBeL+WS
 
-    - name: Pull Nginx image using Podman
+    - name: Pull Nginx image using Podman # bajamos la imagen de nginx con podman
       shell: |
         podman pull nginx:latest
 
-    - name: Tag Nginx image for ACR
+    - name: Tag Nginx image for ACR # tageamos la propia imagen de nginx
       shell: |
         podman tag nginx:latest alexitodevopsacrcp2.azurecr.io/nginx:latest
 
-    - name: Push Nginx image to ACR with Podman
+    - name: Push Nginx image to ACR with Podman # una vez tageada la incluyo en mi propio ACR de azure
       shell: |
         podman push alexitodevopsacrcp2.azurecr.io/nginx:latest
 
-    - name: Run Nginx container from ACR image using Podman
+    - name: Run Nginx container from ACR image using Podman # Corro desde mi ACR la imagen descargada de nginx
       shell: |
         podman run -d --name nginx -p 80:80 alexitodevopsacrcp2.azurecr.io/nginx:latest
 
