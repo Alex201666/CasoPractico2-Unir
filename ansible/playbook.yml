@@ -1,0 +1,52 @@
+---
+- name: Manage Podman and ACR
+  hosts: webservers
+  become: true
+  tasks:
+    - name: Update apt repository and install dependencies
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
+        update_cache: yes
+
+    - name: Add Podman GPG key
+      apt_key:
+        url: 'https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_18.04/Release.key'
+        state: present
+
+    - name: Add Podman repository
+      apt_repository:
+        repo: 'deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_18.04/ /'
+        state: present
+
+    - name: Install Podman
+      apt:
+        name: podman
+        state: present
+        update_cache: yes
+
+    - name: Login to Azure ACR with Podman
+      shell: |
+        podman login alexitodevopsacrcp2.azurecr.io --username alexitodevopsacrcp2 --password 7twRrp5O/1bxuidBgiWWAUoFztc3pR/EyqSpKSGpz5+ACRBeL+WS
+
+    - name: Pull Nginx image using Podman
+      shell: |
+        podman pull nginx:latest
+
+    - name: Tag Nginx image for ACR
+      shell: |
+        podman tag nginx:latest alexitodevopsacrcp2.azurecr.io/nginx:latest
+
+    - name: Push Nginx image to ACR with Podman
+      shell: |
+        podman push alexitodevopsacrcp2.azurecr.io/nginx:latest
+
+    - name: Run Nginx container from ACR image using Podman
+      shell: |
+        podman run -d --name nginx -p 80:80 alexitodevopsacrcp2.azurecr.io/nginx:latest
+

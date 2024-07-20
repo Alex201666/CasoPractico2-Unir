@@ -1,0 +1,3 @@
+[webservers]
+52.233.164.81 ansible_user=admincp2
+
