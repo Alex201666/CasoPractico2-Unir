@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-pvc # Nombre que le doy al volumen persistente
+spec:
+  accessModes:
+    - ReadWriteOnce # Modo de acceso de solo lectura y escritura por un nodo
+  resources:
+    requests:
+      storage: 1Gi # Tamaño
+  storageClassName: default
+

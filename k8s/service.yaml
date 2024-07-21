@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-app-service # Nombre del servicio
+spec:
+  type: LoadBalancer # Tipo de servicio, LoadBalancer para exponer la aplicación a Internet
+  selector:
+    app: web-app # Selector para los pods gestionados por este servicio
+  ports:
+    - protocol: TCP
+      port: 8080 # Puerto en el que se da servicio desde Internet
+      targetPort: 80 # Puerto del contenedor al que se dirige el tráfico
+

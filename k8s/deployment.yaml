@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app # Nombre del deployment
+spec:
+  replicas: 1 # Número de réplicas del pod
+  selector:
+    matchLabels:
+      app: web-app # Selector para los pods gestionados del deployment
+  template:
+    metadata:
+      labels:
+        app: web-app # Etiqueta que se aplica a los pods
+    spec:
+      containers:
+      - name: web-app # Nombre del contenedor
+        image: alexitodevopsacrcp2.azurecr.io/web_server:casopractico2 # Imagen del contenedor desde ACR
+        ports:
+        - containerPort: 80 # Puerto que exponemos del contenedor
+        volumeMounts:
+        - mountPath: /usr/local/apache2/htdocs/ # Ruta dentro del contenedor donde se crea el volumen
+          name: web-content # Nombre del volumen
+      volumes:
+      - name: web-content
+        persistentVolumeClaim:
+          claimName: my-pvc # Nombre del PVC que se montará en este volumen
+
