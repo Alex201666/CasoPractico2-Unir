@@ -40,8 +40,21 @@ output "vnet_name" {
   value       = azurerm_virtual_network.vnet.name
 }
 
-// Nombre de la subred
-output "subnet_name" {
-  description = "Nombre de la subred"
-  value       = azurerm_subnet.subnet.name
+// Nombre de la subred para AKS
+output "aks_subnet_name" {
+  description = "Nombre de la subred para AKS"
+  value       = azurerm_subnet.aks_subnet.name
+}
+
+// Nombre del AKS
+output "aks_name" {
+  description = "Nombre del Azure Kubernetes Service"
+  value       = azurerm_kubernetes_cluster.aks.name
+}
+
+// URL de la API del AKS
+output "aks_kube_config" {
+  description = "URL de la API del Azure Kubernetes Service"
+  value       = azurerm_kubernetes_cluster.aks.kube_config[0].host
+  sensitive = true
 }

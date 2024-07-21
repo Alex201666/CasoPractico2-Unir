@@ -68,3 +68,48 @@ resource "azurerm_linux_virtual_machine" "vm" {
   ]
 }
 
+// Crear una subred para AKS
+resource "azurerm_subnet" "aks_subnet" {
+  name                 = "alexdevops-aks-subnet"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = ["10.0.2.0/24"]
+}
+
+// Crear un Azure Kubernetes Service (AKS)
+resource "azurerm_kubernetes_cluster" "aks" {
+  name                = "alexdevops-aks"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  dns_prefix          = "alexdevops-aks"
+
+  default_node_pool {
+    name       = "default"
+    node_count = 2
+    vm_size    = "Standard_DS2_v2"
+    os_disk_size_gb = 30
+    type       = "VirtualMachineScaleSets"
+    max_pods    = 110
+    vnet_subnet_id = azurerm_subnet.aks_subnet.id
+  }
+
+  network_profile {
+    network_plugin = "azure"
+    service_cidr   = "10.0.3.0/24"  // Rango de IPs para los servicios de Kubernetes, asegurándote de que no se solape con otras subredes
+    dns_service_ip = "10.0.3.10"
+  }
+
+// Define el tipo de identidad asignada al cluster
+  identity {
+    type = "SystemAssigned"
+  }
+
+  tags = {
+    Environment = "Development"
+  }
+
+  depends_on = [
+    azurerm_container_registry.acr,
+    azurerm_subnet.aks_subnet
+  ]
+}

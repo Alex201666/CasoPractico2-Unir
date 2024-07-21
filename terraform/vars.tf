@@ -16,3 +16,8 @@ variable "acr_name" {
   default     = "alexitodevopsacrcp2"
 }
 
+// Declaro la variable para el nombre del AKS
+variable "aks_name" {
+  description = "Nombre del Azure Kubernetes Service"
+  default     = "alexdevops-aks"
+}
