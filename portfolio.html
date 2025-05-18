@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mi Portfolio Cripto</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #eee;
+      text-align: center;
+      padding: 2rem;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    #total {
+      font-size: 3rem;
+      color: #00ff88;
+      margin-bottom: 2rem;
+    }
+    .crypto {
+      font-size: 1.2rem;
+      margin: 0.5rem 0;
+    }
+    .label {
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Portfolio Cripto</h1>
+  <div id="total">Cargando...</div>
+
+  <div class="crypto" id="eth"></div>
+  <div class="crypto" id="sol"></div>
+  <div class="crypto" id="ada"></div>
+  <div class="crypto" id="xrp"></div>
+  <div class="crypto" id="xlm"></div>
+  <div class="crypto" id="neo"></div>
+
+  <script>
+    const holdings = {
+      eth: 5.05415,
+      sol: 326.304,
+      ada: 24534,
+      xrp: 16600,
+      xlm: 159471,
+      neo: 187.2
+    };
+
+    async function fetchPrices() {
+      const url = 'https://api.coingecko.com/api/v3/simple/price?ids=ethereum,solana,cardano,ripple,stellar,neo&vs_currencies=usd';
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+
+        const prices = {
+          eth: data.ethereum.usd,
+          sol: data.solana.usd,
+          ada: data.cardano.usd,
+          xrp: data.ripple.usd,
+          xlm: data.stellar.usd,
+          neo: data.neo.usd
+        };
+
+        let total = 0;
+
+        for (let key in holdings) {
+          const amount = holdings[key];
+          const price = prices[key];
+          const value = amount * price;
+          total += value;
+          document.getElementById(key).innerHTML =
+            `<span class="label">${key.toUpperCase()}:</span> ${amount} × $${price.toFixed(2)} = <strong>$${value.toFixed(2)}</strong>`;
+        }
+
+        document.getElementById('total').innerText = `Total: $${total.toFixed(2)}`;
+
+      } catch (error) {
+        document.getElementById('total').innerText = 'Error al obtener datos';
+        console.error('Error al consultar CoinGecko:', error);
+      }
+    }
+
+    fetchPrices();
+    setInterval(fetchPrices, 60000); // actualizar cada 60 segundos
+  </script>
+
+</body>
+</html>
